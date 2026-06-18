@@ -1,0 +1,47 @@
+/* ============================================
+   TABELAS, BADGES e HISTÓRICO
+   ============================================ */
+.rt{width:100%;border-collapse:collapse;font-size:13px;}
+.rt th{
+  text-align:left;padding:6px 8px;font-size:11px;font-weight:600;
+  color:var(--color-text-muted);border-bottom:1px solid var(--color-border);
+}
+.rt td{padding:6px 8px;border-bottom:1px solid #f0eee6;color:var(--color-text);}
+.rt tr:last-child td{border-bottom:none;}
+.rt tr:hover td{background:#fafaf8;}
+.rt td.n{text-align:right;font-variant-numeric:tabular-nums;}
+
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:500;}
+.bok{background:var(--color-success-bg);color:var(--color-success-text);}
+.bwn{background:var(--color-warning-bg);color:var(--color-warning-text);}
+
+.he{border:1px solid var(--color-border);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:8px;}
+.hh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:8px;}
+.hc{font-size:14px;font-weight:500;color:var(--color-text);}
+.hm{font-size:12px;color:var(--color-text-muted);}
+
+details summary{cursor:pointer;font-size:13px;color:var(--color-text-soft);}
+details summary:hover{color:var(--color-text);}
+
+/* alertas e instruções */
+.ai{
+  background:var(--color-blue-accent-bg);border-radius:var(--radius-md);padding:10px 14px;
+  font-size:13px;color:#1e40af;line-height:1.6;margin-top:8px;border:1px solid #bfdbfe;
+}
+.aw{
+  background:var(--color-warning-bg);border-radius:var(--radius-md);padding:10px 14px;
+  font-size:13px;color:var(--color-warning-text);line-height:1.6;margin-top:12px;
+  border:1px solid var(--color-warning-border);
+}
+
+.gs{display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;}
+.sn{
+  width:22px;height:22px;border-radius:50%;background:var(--color-blue-accent-bg);
+  color:var(--color-blue-accent);font-size:12px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
+}
+.st{font-size:13px;color:var(--color-text);line-height:1.7;}
+.st b{font-weight:600;}
+
+.ssok{font-size:12px;color:var(--color-success-text);margin-top:8px;}
+.sserr{font-size:12px;color:var(--color-danger-text);margin-top:8px;}

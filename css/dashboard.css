@@ -1,0 +1,25 @@
+/* ============================================
+   DASHBOARD — gráficos e rankings
+   ============================================ */
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+@media(max-width:680px){.dash-row{grid-template-columns:1fr;}}
+
+.chart-card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:1rem;}
+.chart-title{font-size:12px;font-weight:600;color:#444;margin-bottom:10px;}
+canvas{display:block;width:100%!important;}
+
+.dash-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:1.25rem;}
+.dash-toolbar label{font-size:13px;color:var(--color-text-soft);}
+.dash-toolbar select{
+  height:34px;padding:0 10px;border:1px solid #d1cfc6;border-radius:var(--radius-md);
+  font-size:13px;outline:none;background:var(--color-surface);
+}
+.dash-toolbar select:focus{border-color:#4a90d9;}
+
+.ranking-list{display:flex;flex-direction:column;gap:4px;max-height:320px;overflow-y:auto;}
+.rank-item{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:var(--radius-sm);background:#f9f9f7;}
+.rank-pos{font-size:11px;font-weight:600;color:#aaa;width:18px;text-align:center;}
+.rank-apt{font-size:13px;font-weight:600;color:var(--color-text);width:38px;}
+.rank-bar-wrap{flex:1;background:#f0eee6;border-radius:4px;height:8px;overflow:hidden;}
+.rank-bar{height:100%;border-radius:4px;background:#60a5fa;}
+.rank-val{font-size:12px;color:var(--color-text-soft);width:60px;text-align:right;}

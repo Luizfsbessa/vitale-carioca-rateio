@@ -1,0 +1,57 @@
+/* ============================================
+   HEADER — logo Vitale Carioca + painel de inputs
+   ============================================ */
+.header{
+  background:var(--color-surface);
+  border-radius:var(--radius-xl);
+  border:1px solid var(--color-border);
+  padding:1rem 1.25rem;
+  margin-bottom:1.25rem;
+}
+
+.header-top{
+  display:flex;align-items:center;gap:1.25rem;
+  padding-bottom:.875rem;border-bottom:1px solid #f0eee6;margin-bottom:.875rem;
+}
+
+.logo-block{display:flex;flex-direction:column;align-items:flex-start;gap:1px;flex-shrink:0;}
+.logo-row{display:flex;align-items:center;gap:7px;}
+.logo-sq{
+  width:24px;height:24px;background:var(--color-brand-yellow);border-radius:3px;
+  font-size:9px;font-weight:700;color:var(--color-navy);
+  display:flex;align-items:center;justify-content:center;letter-spacing:.05em;
+}
+.logo-vt{font-size:11px;font-weight:700;color:var(--color-navy);letter-spacing:.18em;text-transform:uppercase;}
+.logo-ca{font-size:28px;font-weight:700;color:var(--color-navy);font-style:italic;font-family:Georgia,serif;line-height:1;}
+.logo-rs{font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--color-navy);margin-top:1px;}
+
+.header-divider{width:1px;background:var(--color-border);align-self:stretch;flex-shrink:0;}
+
+.header-info{display:flex;flex-direction:column;justify-content:center;flex:1;}
+.hdr-title{font-size:18px;font-weight:700;color:var(--color-navy);margin-bottom:.6rem;letter-spacing:-.01em;line-height:1.2;}
+.hdr-sub{font-size:12px;color:var(--color-text-muted);margin-top:-.4rem;margin-bottom:.6rem;}
+
+/* linha de inputs (competência / consumo / fatura) */
+.rf{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1rem;}
+.rf label{font-size:13px;color:var(--color-text-soft);white-space:nowrap;}
+#invoice-widget{margin-left:auto;}
+.rf input[type=number],.rf input[type=month],.rf select{
+  height:36px;padding:0 10px;border:1px solid #d1cfc6;border-radius:var(--radius-md);
+  font-size:13px;background:var(--color-surface);outline:none;color:var(--color-text);
+}
+.rf input[type=number]{width:130px;}
+.rf input[type=month]{width:160px;}
+.rf select{min-width:140px;}
+.rf input:focus,.rf select:focus{border-color:#4a90d9;}
+
+/* indicador de referência (mostra qual mês é a leitura anterior) */
+#comp-ant-info{font-size:12px;color:var(--color-text-muted);font-style:italic;}
+
+/* métricas (cards de resumo) */
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1rem;}
+.mc{background:var(--color-bg);border-radius:var(--radius-md);padding:.75rem 1rem;}
+.ml{font-size:11px;color:var(--color-text-muted);margin-bottom:4px;}
+.mv{font-size:18px;font-weight:500;color:var(--color-text);}
+.mv.w{color:var(--color-warning-text);}
+.mv.g{color:var(--color-success-text);}
+.mv.r{color:var(--color-danger-text);}

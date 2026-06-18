@@ -1,0 +1,24 @@
+/* ============================================
+   invoice.css — anexo de boleto/fatura
+   ============================================ */
+
+.invoice-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  height:36px;padding:0 14px;border-radius:var(--radius-md);
+  border:1px solid #d1cfc6;background:var(--color-surface);
+  font-size:13px;color:var(--color-text-soft);cursor:pointer;
+  position:relative;white-space:nowrap;
+}
+.invoice-btn:hover{background:#f0eee6;}
+.invoice-btn.has-invoice{
+  background:var(--color-success-bg);border-color:var(--color-success-border);
+  color:var(--color-success-text);font-weight:500;
+}
+.invoice-btn .invoice-dot{
+  width:7px;height:7px;border-radius:50%;background:#10b981;
+}
+
+.invoice-pdf-preview{
+  width:100%;border-radius:var(--radius-md);margin-bottom:1rem;
+  background:#f5f5f0;padding:2.5rem 1rem;text-align:center;
+}

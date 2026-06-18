@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a2b4a">
+<title>Rateio de Água — Vitale Carioca</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<!-- estilos modulares -->
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/tabs.css">
+<link rel="stylesheet" href="css/floor-cards.css">
+<link rel="stylesheet" href="css/tables.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/photos.css">
+<link rel="stylesheet" href="css/invoice.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER + PAINEL DE COMPETÊNCIA -->
+  <div class="header">
+    <div class="header-top">
+      <div class="logo-block">
+        <div class="logo-row"><div class="logo-sq">V</div><span class="logo-vt">VITALE</span></div>
+        <div class="logo-ca">Carioca</div>
+        <div class="logo-rs">Residencial</div>
+      </div>
+      <div class="header-divider"></div>
+      <div class="header-info">
+        <div class="hdr-title">Rateio de custos de água</div>
+        <div class="hdr-sub">Condomínio Vitale Carioca · 96 unidades</div>
+      </div>
+    </div>
+
+    <div class="sec-title">Competência e leitura geral — Águas do Rio</div>
+    <div class="rf">
+      <label>Competência</label>
+      <input type="month" id="comp">
+      <span id="comp-ant-info"></span>
+      <label>Consumo total (m³)</label>
+      <input type="number" id="tc" min="0" step="0.01" placeholder="ex: 580.00" oninput="onLancamentoChanged()">
+      <label>Valor da fatura (R$)</label>
+      <input type="number" id="tv" min="0" step="0.01" placeholder="ex: 4200.00" oninput="onLancamentoChanged()">
+      <span id="invoice-widget"></span>
+    </div>
+    <div class="mg">
+      <div class="mc"><div class="ml">Consumo total (m³)</div><div class="mv" id="mm1">—</div></div>
+      <div class="mc"><div class="ml">Soma consumos unidades</div><div class="mv" id="mm2">—</div></div>
+      <div class="mc"><div class="ml">Diferença (rateio)</div><div class="mv w" id="mm3">—</div></div>
+      <div class="mc"><div class="ml">Valor fatura (R$)</div><div class="mv" id="mm4">—</div></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab active" onclick="ativarTab('tl',this)">📋 Lançamento</button>
+    <button class="tab" onclick="ativarTab('tc2',this)">✅ Conferência</button>
+    <button class="tab" onclick="ativarTab('td',this)">📊 Dashboard</button>
+    <button class="tab" onclick="ativarTab('th',this)">📅 Histórico</button>
+    <button class="tab" onclick="ativarTab('ts',this)">💾 Backup</button>
+    <button class="tab" onclick="ativarTab('ti',this)">❓ Como usar</button>
+  </div>
+
+  <!-- LANÇAMENTO -->
+  <div id="tl">
+    <div class="dn" id="dn"></div>
+    <div class="hint-banner">
+      ℹ️ <strong>Atenção:</strong> insira a <strong>leitura acumulada do hidrômetro</strong> de cada unidade, não o consumo do período. O consumo é calculado automaticamente como <em>leitura atual − leitura anterior</em>.
+      <br>Exemplo: se o hidrômetro estava em 120m³ e a unidade consumiu 5m³, insira <strong>125m³</strong>.
+    </div>
+    <div class="fg" id="fg"></div>
+    <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="bp" onclick="fecharCompetencia()">💾 Fechar competência e salvar</button>
+      <button class="bg" onclick="exportarCSVAtual()">⬇️ Exportar CSV</button>
+    </div>
+  </div>
+
+  <!-- CONFERÊNCIA -->
+  <div id="tc2" style="display:none;">
+    <div class="card" style="margin-bottom:.75rem;">
+      <div class="conf-toolbar">
+        <label>Competência:</label>
+        <select id="conf-comp" onchange="onConferenciaFiltroChange()"></select>
+        <label style="margin-left:8px;">Filtrar:</label>
+        <select id="conf-filtro" onchange="onConferenciaFiltroChange()">
+          <option value="todos">Todas as unidades</option>
+          <option value="lancadas">Somente lançadas</option>
+          <option value="pendentes">Somente sem leitura</option>
+        </select>
+        <input type="text" id="conf-busca" placeholder="🔍 Buscar unidade..." style="width:160px;" oninput="onConferenciaFiltroChange()">
+      </div>
+      <div class="conf-summary" id="conf-summary"></div>
+      <div class="conf-bar-wrap"><div class="conf-bar" id="conf-bar" style="width:0%"></div></div>
+      <div class="conf-legend" id="conf-legend"></div>
+    </div>
+    <div id="conf-body"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="td" style="display:none;">
+    <div class="card" style="margin-bottom:.75rem;">
+      <div class="dash-toolbar">
+        <label>Visão:</label>
+        <select id="dash-tipo" onchange="onDashTipoChange();onDashboardChange()">
+          <option value="mensal">Mensal</option>
+          <option value="anual">Anual</option>
+        </select>
+        <label>Período:</label>
+        <select id="dash-periodo" onchange="onDashboardChange()"></select>
+        <label id="dash-label2" style="display:none">até:</label>
+        <select id="dash-periodo2" onchange="onDashboardChange()" style="display:none"></select>
+        <label>Detalhe:</label>
+        <select id="dash-detalhe" onchange="onDashboardChange()">
+          <option value="geral">Geral (condomínio)</option>
+          <option value="andar">Por andar</option>
+          <option value="unidade">Por unidade</option>
+        </select>
+        <select id="dash-andar" onchange="onDashboardChange()" style="display:none;min-width:110px;height:34px;padding:0 10px;border:1px solid #d1cfc6;border-radius:8px;font-size:13px;outline:none;background:#fff;"></select>
+      </div>
+    </div>
+    <div id="dash-body"></div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div id="th" style="display:none;">
+    <div class="card">
+      <div class="sb">
+        <input type="text" id="hs" placeholder="🔍 Buscar competência..." oninput="onHistoricoBuscaChange()">
+      </div>
+      <div id="hb"></div>
+    </div>
+  </div>
+
+  <!-- BACKUP -->
+  <div id="ts" style="display:none;">
+    <div class="card">
+      <div class="sec-title">Backup e restauração de dados</div>
+      <p style="font-size:13px;color:#555;margin-bottom:1rem;line-height:1.6;">
+        Os dados (leituras, valores e fotos do hidrômetro) ficam salvos neste navegador.
+        Para usar em outros dispositivos, exporte o backup aqui e importe no outro aparelho.
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="bp" onclick="exportarBackup()">☁️ Exportar backup (.json)</button>
+        <button class="bg" onclick="document.getElementById('impF').click()">📂 Importar backup</button>
+        <input type="file" id="impF" accept=".json" style="display:none" onchange="importarBackup(event)">
+      </div>
+      <div id="ssSt"></div>
+      <div class="ai" style="margin-top:12px;">💡 <b>Dica:</b> exporte o backup mensalmente após fechar cada competência.</div>
+    </div>
+  </div>
+
+  <!-- COMO USAR -->
+  <div id="ti" style="display:none;">
+    <div class="card">
+      <div class="sec-title">Como utilizar este sistema</div>
+      <p style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:10px;">📋 Fluxo mensal — passo a passo</p>
+      <div class="gs"><div class="sn">1</div><div class="st"><b>Selecione a competência</b> (mês e ano) no topo antes de iniciar os lançamentos.</div></div>
+      <div class="gs"><div class="sn">2</div><div class="st"><b>Informe o consumo total em m³</b> e o <b>valor da fatura</b> da Águas do Rio.</div></div>
+      <div class="gs"><div class="sn">3</div><div class="st">Na aba <b>Lançamento</b>, insira a <b>leitura atual do hidrômetro</b> de cada unidade. A coluna "Hidrôm. anterior" exibe o valor do mês anterior salvo — o consumo é calculado automaticamente. Use o botão 📷 para registrar uma foto do hidrômetro (auditoria).</div></div>
+      <div class="gs"><div class="sn">4</div><div class="st">Use a aba <b>Conferência</b> para verificar quais unidades estão sem leitura, sem precisar redigitar nada. Basta selecionar a competência desejada.</div></div>
+      <div class="gs"><div class="sn">5</div><div class="st">Clique em <b>Fechar competência e salvar</b>. O sistema avança para o próximo mês automaticamente.</div></div>
+      <div class="gs"><div class="sn">6</div><div class="st">Consulte o <b>Dashboard</b> para análise gráfica do consumo por período, andar ou unidade.</div></div>
+      <div style="margin-top:1.25rem;">
+        <p style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:8px;">🧮 Cálculo do rateio</p>
+        <p style="font-size:13px;color:#1a1a1a;line-height:1.7;">Valor por m³ = fatura total ÷ consumo total Águas do Rio. Cada unidade paga proporcional ao consumo medido. A diferença não identificada é dividida igualmente entre as 96 unidades.</p>
+      </div>
+      <div style="margin-top:1.25rem;">
+        <p style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:8px;">📷 Fotos do hidrômetro</p>
+        <p style="font-size:13px;color:#1a1a1a;line-height:1.7;">Cada foto registrada fica vinculada à unidade e à competência, com data/hora automática — útil para auditoria e resolução de disputas sobre a leitura.</p>
+      </div>
+      <div style="margin-top:1.25rem;">
+        <p style="font-size:13px;font-weight:600;color:#1a1a1a;margin-bottom:8px;">📎 Boleto/fatura da Águas do Rio</p>
+        <p style="font-size:13px;color:#1a1a1a;line-height:1.7;">Use o botão "Anexar fatura" ao lado dos campos de consumo/valor para guardar o PDF ou foto do boleto junto à competência — assim o valor lançado sempre tem o documento original disponível para conferência.</p>
+      </div>
+      <div class="aw">⚠️ <b>Dados salvos neste dispositivo.</b> Use a aba <b>Backup</b> para exportar e acessar em outros dispositivos.</div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    Powered by <strong>Luiz Bessa</strong>
+  </footer>
+
+</div><!-- /app -->
+
+<!-- módulos JS (ordem importa: utilitários antes da lógica antes da UI antes do app) -->
+<script src="js/db.js"></script>
+<script src="js/photo-utils.js"></script>
+<script src="js/rateio-logic.js"></script>
+<script src="js/formatters.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/photos-ui.js"></script>
+<script src="js/invoice-ui.js"></script>
+<script src="js/tab-lancamento.js"></script>
+<script src="js/tab-conferencia.js"></script>
+<script src="js/tab-dashboard.js"></script>
+<script src="js/tab-historico.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
+
+<!-- registro do service worker (PWA) -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  });
+}
+</script>
+</body>
+</html>

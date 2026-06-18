@@ -1,0 +1,41 @@
+/* ============================================
+   TABS & BOTÕES
+   ============================================ */
+.tab-bar{display:flex;gap:4px;margin-bottom:1rem;flex-wrap:wrap;}
+
+button.tab{
+  padding:6px 13px;border-radius:var(--radius-md);border:1px solid #d1cfc6;
+  font-size:13px;cursor:pointer;background:transparent;color:var(--color-text-soft);
+  transition:all .15s;
+}
+button.tab:hover{background:#f0eee6;}
+button.tab.active{background:var(--color-blue-accent-bg);color:var(--color-blue-accent);border-color:transparent;}
+
+button.bp{
+  padding:7px 16px;border-radius:var(--radius-md);border:1px solid #93c5fd;
+  background:var(--color-blue-accent-bg);color:var(--color-blue-accent);
+  font-size:13px;cursor:pointer;font-weight:500;
+}
+button.bp:hover{background:var(--color-blue-accent-bg-hover);}
+
+button.bg{
+  padding:7px 16px;border-radius:var(--radius-md);border:1px solid #d1cfc6;
+  background:transparent;color:var(--color-text-soft);font-size:13px;cursor:pointer;
+}
+button.bg:hover{background:#f0eee6;}
+
+button.bd{
+  padding:5px 12px;border-radius:var(--radius-md);border:1px solid var(--color-danger-border);
+  background:transparent;color:var(--color-danger-text);font-size:12px;cursor:pointer;
+}
+button.bd:hover{background:var(--color-danger-bg);}
+
+/* busca */
+.sb{display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap;}
+.sb input,.sb select{
+  height:34px;padding:0 10px;border:1px solid #d1cfc6;border-radius:var(--radius-md);
+  font-size:13px;outline:none;background:var(--color-surface);
+}
+.sb input{flex:1;min-width:120px;}
+.sb select{min-width:130px;}
+.sb input:focus,.sb select:focus{border-color:#4a90d9;}

@@ -1,0 +1,52 @@
+/* ============================================
+   FOTOS DO HIDRÔMETRO — captura e galeria (auditoria)
+   ============================================ */
+
+/* botão de câmera dentro da linha de unidade (Lançamento) */
+.ur{position:relative;}
+.photo-btn{
+  width:30px;height:30px;border-radius:var(--radius-sm);border:1px solid #d1cfc6;
+  background:var(--color-surface);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;position:relative;
+}
+.photo-btn:hover{background:#f0eee6;}
+.photo-btn.has-photo{background:var(--color-success-bg);border-color:var(--color-success-border);}
+.photo-btn .photo-dot{
+  position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;
+  background:#10b981;border:1.5px solid #fff;
+}
+
+/* quando há foto, a linha de unidade ganha uma 4ª coluna para o botão */
+.ur.with-photo{grid-template-columns:44px 1fr 1fr 32px;}
+
+/* modal de captura/visualização de foto */
+.photo-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;
+  display:flex;align-items:center;justify-content:center;padding:1rem;
+}
+.photo-modal{
+  background:var(--color-surface);border-radius:var(--radius-xl);padding:1.25rem;
+  max-width:420px;width:100%;max-height:90vh;overflow-y:auto;
+}
+.photo-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+.photo-modal-title{font-size:15px;font-weight:600;color:var(--color-navy);}
+.photo-modal-close{
+  width:28px;height:28px;border-radius:50%;border:none;background:#f0eee6;cursor:pointer;
+  font-size:16px;color:var(--color-text-soft);display:flex;align-items:center;justify-content:center;
+}
+.photo-modal-close:hover{background:#e5e3da;}
+
+.photo-preview{
+  width:100%;border-radius:var(--radius-md);margin-bottom:1rem;background:#f0eee6;
+  display:block;max-height:340px;object-fit:contain;
+}
+.photo-meta{font-size:12px;color:var(--color-text-muted);margin-bottom:1rem;line-height:1.6;}
+.photo-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+.photo-input-hidden{display:none;}
+
+/* indicador de foto no card de conferência */
+.cu-photo-flag{
+  display:inline-flex;align-items:center;gap:2px;font-size:10px;
+  background:rgba(16,185,129,.15);border-radius:99px;padding:1px 6px;margin-top:3px;
+}
