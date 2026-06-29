@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="css/dashboard.css">
 <link rel="stylesheet" href="css/photos.css">
 <link rel="stylesheet" href="css/invoice.css">
+<link rel="stylesheet" href="css/condominios.css">
 </head>
 <body>
 <div class="app">
@@ -64,6 +65,7 @@
     <button class="tab" onclick="ativarTab('tc2',this)">✅ Conferência</button>
     <button class="tab" onclick="ativarTab('td',this)">📊 Dashboard</button>
     <button class="tab" onclick="ativarTab('th',this)">📅 Histórico</button>
+    <button class="tab" onclick="ativarTab('tcond',this)">👤 Condôminos</button>
     <button class="tab" onclick="ativarTab('ts',this)">💾 Backup</button>
     <button class="tab" onclick="ativarTab('ti',this)">❓ Como usar</button>
   </div>
@@ -138,6 +140,31 @@
     </div>
   </div>
 
+  <!-- CONDÔMINOS -->
+  <div id="tcond" style="display:none;">
+    <div class="card" style="margin-bottom:.75rem;">
+      <div class="cond-toolbar">
+        <label>Filtrar:</label>
+        <select id="cond-filtro" onchange="onCondominiosFiltroChange()">
+          <option value="todos">Todas as unidades</option>
+          <option value="cadastrados">Somente cadastrados</option>
+          <option value="pendentes">Somente pendentes</option>
+        </select>
+        <input type="text" id="cond-busca" placeholder="🔍 Buscar unidade ou nome..." oninput="onCondominiosFiltroChange()">
+        <div style="margin-left:auto;display:flex;gap:8px;">
+          <button class="bg" onclick="TabCondominios.exportarCSV()">⬇️ Exportar CSV</button>
+          <button class="bg" onclick="document.getElementById('cond-import-input').click()">⬆️ Importar CSV</button>
+          <input type="file" id="cond-import-input" accept=".csv" style="display:none" onchange="onCondominiosImportCSV(event)">
+        </div>
+      </div>
+      <div class="ai" style="margin-top:0;margin-bottom:0;">
+        💡 Preencha nome e WhatsApp de cada condômino para habilitar o botão 📤 de envio do extrato individual.
+        <br>Importação em massa: CSV com colunas <code>Unidade;Nome;WhatsApp;Email</code>
+      </div>
+    </div>
+    <div id="cond-body"></div>
+  </div>
+
   <!-- BACKUP -->
   <div id="ts" style="display:none;">
     <div class="card">
@@ -197,6 +224,9 @@
 <script src="js/charts.js"></script>
 <script src="js/photos-ui.js"></script>
 <script src="js/invoice-ui.js"></script>
+<script src="js/tab-condominios.js"></script>
+<script src="js/pdf-generator.js"></script>
+<script src="js/share-modal.js"></script>
 <script src="js/tab-lancamento.js"></script>
 <script src="js/tab-conferencia.js"></script>
 <script src="js/tab-dashboard.js"></script>

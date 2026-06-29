@@ -7,10 +7,11 @@
    ============================================ */
 
 const DB_NAME = 'vitale_carioca_rateio';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORE_COMPETENCIAS = 'competencias';
 const STORE_PHOTOS = 'photos';
 const STORE_INVOICES = 'invoices';
+const STORE_RESIDENTS = 'residents';
 
 let _db = null;
 
@@ -35,6 +36,9 @@ function openDB() {
       if (!db.objectStoreNames.contains(STORE_INVOICES)) {
         // key = cp (uma fatura por competência) ex: "2026-06"
         db.createObjectStore(STORE_INVOICES, { keyPath: 'cp' });
+      }
+      if (!db.objectStoreNames.contains(STORE_RESIDENTS)) {
+        db.createObjectStore(STORE_RESIDENTS, { keyPath: 'unidade' });
       }
     };
 
@@ -196,13 +200,57 @@ async function getAllInvoices() {
   });
 }
 
+
+/* ── Condôminos (nome, WhatsApp, e-mail por unidade) ── */
+
+async function saveResident(resident) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_RESIDENTS, 'readwrite');
+    tx.objectStore(STORE_RESIDENTS).put(resident);
+    tx.oncomplete = () => resolve(resident);
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
+async function getResident(unidade) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_RESIDENTS, 'readonly');
+    const req = tx.objectStore(STORE_RESIDENTS).get(unidade);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+async function getAllResidents() {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_RESIDENTS, 'readonly');
+    const req = tx.objectStore(STORE_RESIDENTS).getAll();
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+
+async function deleteResident(unidade) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_RESIDENTS, 'readwrite');
+    tx.objectStore(STORE_RESIDENTS).delete(unidade);
+    tx.oncomplete = () => resolve(true);
+    tx.onerror = (e) => reject(e.target.error);
+  });
+}
+
 /* ── Backup completo (export/import) ── */
 
 async function exportFullBackup() {
   const competencias = await getAllCompetencias();
   const photos = await getAllPhotos();
   const invoices = await getAllInvoices();
-  return { version: DB_VERSION, exportedAt: new Date().toISOString(), competencias, photos, invoices };
+  const residents = await getAllResidents();
+  return { version: DB_VERSION, exportedAt: new Date().toISOString(), competencias, photos, invoices, residents };
 }
 
 async function importFullBackup(backup) {
@@ -210,7 +258,7 @@ async function importFullBackup(backup) {
     throw new Error('Formato de backup inválido');
   }
   const db = await openDB();
-  const tx = db.transaction([STORE_COMPETENCIAS, STORE_PHOTOS, STORE_INVOICES], 'readwrite');
+  const tx = db.transaction([STORE_COMPETENCIAS, STORE_PHOTOS, STORE_INVOICES, STORE_RESIDENTS], 'readwrite');
   const compStore = tx.objectStore(STORE_COMPETENCIAS);
   const photoStore = tx.objectStore(STORE_PHOTOS);
   const invoiceStore = tx.objectStore(STORE_INVOICES);
@@ -255,5 +303,6 @@ window.RateioDB = {
   saveCompetencia, getCompetencia, getAllCompetencias, deleteCompetencia,
   savePhoto, getPhoto, deletePhoto, getAllPhotos,
   saveInvoice, getInvoice, deleteInvoice, getAllInvoices,
+  saveResident, getResident, getAllResidents, deleteResident,
   exportFullBackup, importFullBackup, migrateLegacyLocalStorage
 };

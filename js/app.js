@@ -188,18 +188,39 @@ function setStatusBackup(msg, ok) {
   el.textContent = msg;
 }
 
+/* ── Condôminos ── */
+
+async function abrirCondominios() {
+  await TabCondominios.carregar();
+  await TabCondominios.render();
+}
+
+async function onCondominiosFiltroChange() {
+  await TabCondominios.render();
+}
+
+async function onCondominiosImportCSV(event) {
+  const file = event.target.files[0]; event.target.value = '';
+  if (!file) return;
+  const texto = await file.text();
+  const count = await TabCondominios.importarCSV(texto);
+  alert(`✅ ${count} condômino(s) importado(s) com sucesso!`);
+  await abrirCondominios();
+}
+
 /* ── Navegação entre abas ── */
 
-const TAB_IDS = ['tl', 'tc2', 'td', 'th', 'ts', 'ti'];
+const TAB_IDS = ['tl', 'tc2', 'td', 'th', 'tcond', 'ts', 'ti'];
 
 function ativarTab(id, el) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
   TAB_IDS.forEach(t => { document.getElementById(t).style.display = (t === id) ? '' : 'none'; });
 
-  if (id === 'tc2') abrirConferencia();
-  if (id === 'td') abrirDashboard();
-  if (id === 'th') abrirHistorico();
+  if (id === 'tc2')   abrirConferencia();
+  if (id === 'td')    abrirDashboard();
+  if (id === 'th')    abrirHistorico();
+  if (id === 'tcond') abrirCondominios();
 }
 
 /* ── Inicialização ── */
@@ -207,6 +228,7 @@ function ativarTab(id, el) {
 async function initApp() {
   await RateioDB.migrateLegacyLocalStorage();
   await carregarMapaCompetencias();
+  await TabCondominios.carregar();
 
   const hoje = new Date();
   document.getElementById('comp').value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`;
