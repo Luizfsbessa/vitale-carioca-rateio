@@ -77,6 +77,14 @@ async function AbrirModalEnvio(unidade, cp) {
     const dSel = reg.u[unidade];
     await PDFGenerator.gerarPDFUnidade(cpSel, unidade, reg, res);
     const msg = `Olá ${res?.nome ? '*'+res.nome+'*,' : `condômino(a) da unidade *${unidade}*,`}\n\n*EXTRATO DE CONSUMO DE ÁGUA — ${Fmt.formatarCompetencia(cpSel)}*\nCondomínio Vitale Carioca\n\n🏢 *Unidade:* ${unidade}\n💧 *Leitura:* ${dSel.la>0?dSel.la.toFixed(2)+' m³':'—'}\n📊 *Consumo:* ${dSel.c.toFixed(2)} m³\n\n💰 *Composição:*\n• Individual: R$ ${Fmt.formatarBRL(reg.vpm3*dSel.c)}\n• Rateio: R$ ${Fmt.formatarBRL(reg.vpm3*dSel.r)}\n• *Total: R$ ${Fmt.formatarBRL(dSel.v)}*\n\nO extrato PDF foi enviado em seguida.\n_Dúvidas? Contate a administração._`;
-    window.open(`https://wa.me/55${num}?text=${encodeURIComponent(msg)}`, '_blank');
+    const waUrl = `https://wa.me/55${num}?text=${encodeURIComponent(msg)}`;
+    const waLink = document.createElement('a');
+    waLink.href = waUrl;
+    waLink.target = '_blank';
+    waLink.rel = 'noopener noreferrer';
+    waLink.style.display = 'none';
+    document.body.appendChild(waLink);
+    waLink.click();
+    setTimeout(() => document.body.removeChild(waLink), 1000);
   };
 }
