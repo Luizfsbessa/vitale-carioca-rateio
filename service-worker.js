@@ -7,7 +7,7 @@
    gerenciados diretamente pelo app.
 */
 
-const CACHE_NAME = 'vitale-carioca-rateio-v3';
+const CACHE_NAME = 'vitale-carioca-rateio-v4';
 
 const ARQUIVOS_PARA_CACHE = [
   './',
@@ -36,6 +36,7 @@ const ARQUIVOS_PARA_CACHE = [
   './js/app.js',
   './icons/icon-192.png',
   './js/share-modal.js',
+  './js/emailjs-sender.js',
   './js/pdf-generator.js',
   './js/tab-condominios.js',
   './css/condominios.css',
