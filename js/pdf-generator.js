@@ -160,9 +160,66 @@ async function gerarPDFUnidade(cp,unidade,regComp,resident){
   return `extrato_${unidade}_${cp}.pdf`;
 }
 
+async function gerarBase64Unidade(cp,unidade,regComp,resident){
+  const d=regComp.u[unidade];
+  if(!d)return null;
+  const andar=Math.floor(parseInt(unidade)/100);
+  const consumoAndar=calcAndar(regComp,andar);
+  const consumoPredio=Object.values(regComp.u).reduce((s,x)=>s+x.c,0);
+  const pctAndar=consumoAndar>0?d.c/consumoAndar*100:0;
+  const pctPredio=consumoPredio>0?d.c/consumoPredio*100:0;
+  const S=2;const canvas=document.createElement('canvas');
+  canvas.width=PDF_W*S;canvas.height=PDF_H*S;
+  const ctx=canvas.getContext('2d');ctx.scale(S,S);
+  // Renderiza usando a mesma função interna
+  await _drawExtrato(ctx,canvas,cp,unidade,regComp,resident,d,andar,consumoAndar,consumoPredio,pctAndar,pctPredio);
+  // Converte para PDF e retorna base64
+  const out=_buildPDF(canvas);
+  let bin='';for(let i=0;i<out.length;i++)bin+=String.fromCharCode(out[i]);
+  return btoa(bin);
+}
+
+window.PDFGenerator={gerarPDFUnidade,gerarBase64Unidade};
+
 function blkTitle(ctx,t,x,y){ctx.fillStyle=GOLD;ctx.fillRect(x-4,y-10,3,14);ctx.fillStyle=NAVY;ctx.font='bold 10px sans-serif';ctx.fillText(t,x+2,y);}
 function secTitle(ctx,t,x,y){ctx.fillStyle=NAVY;ctx.fillRect(x,y-2,3,14);ctx.font='bold 10px sans-serif';ctx.fillText(t,x+8,y+10);const tw=ctx.measureText(t).width;ctx.strokeStyle='#e5e3da';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x+8+tw+8,y+5);ctx.lineTo(PDF_W-MARGIN,y+5);ctx.stroke();}
 function rr(ctx,x,y,w,h,r){if(h<=0||w<=0)return;r=Math.min(r,h/2,w/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
 function calcAndar(reg,a){let t=0;for(let u=1;u<=8;u++){const k=String(a*100+u);if(reg.u[k])t+=reg.u[k].c||0;}return t;}
 
-window.PDFGenerator={gerarPDFUnidade};
+/**
+ * Gera o PDF e retorna como string base64 (sem baixar).
+ * Usado pelo EmailJS para enviar como anexo.
+ */
+async function gerarBase64Unidade(cp, unidade, regComp, resident) {
+  // Reutiliza toda a lógica de renderização do gerarPDFUnidade
+  // mas em vez de baixar, retorna o base64
+  const d = regComp.u[unidade];
+  if (!d) return null;
+
+  const andar = Math.floor(parseInt(unidade) / 100);
+  const consumoAndar  = calcAndar(regComp, andar);
+  const consumoPredio = Object.values(regComp.u).reduce((s,x) => s+x.c, 0);
+  const pctAndar  = consumoAndar  > 0 ? d.c/consumoAndar*100  : 0;
+  const pctPredio = consumoPredio > 0 ? d.c/consumoPredio*100 : 0;
+
+  const S = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width  = PDF_W * S;
+  canvas.height = PDF_H * S;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(S, S);
+
+  // --- Reutiliza a mesma função de renderização ---
+  await _renderCanvas(ctx, cp, unidade, regComp, resident, d, andar,
+                      consumoAndar, consumoPredio, pctAndar, pctPredio, canvas);
+
+  // Converte para PDF binário e retorna base64
+  const pdfBytes = _canvasToPDFBytes(canvas);
+  // Converte Uint8Array para base64
+  let binary = '';
+  const len = pdfBytes.length;
+  for (let i = 0; i < len; i++) binary += String.fromCharCode(pdfBytes[i]);
+  return btoa(binary);
+}
+
+window.PDFGenerator = { gerarPDFUnidade, gerarBase64Unidade };
