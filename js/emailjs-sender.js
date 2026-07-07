@@ -88,6 +88,8 @@ async function enviarEmailExtrato(cpSel, unidade, regComp, resident, onStatus) {
   const templateParams = {
     to_email:      email,
     to_name:       resident?.nome || `Unidade ${unidade}`,
+    name:          resident?.nome || `Unidade ${unidade}`,  // compatibilidade {{name}}
+    email:         email,                                    // compatibilidade {{email}}
     unidade:       unidade,
     andar:         `${andar}º Andar`,
     competencia:   Fmt.formatarCompetencia(cpSel),
@@ -188,6 +190,11 @@ Condomínio Vitale Carioca</div>
         </div>
       </div>
 
+      <div style="margin-bottom:8px;">
+        <label style="font-size:11px;color:#888;display:block;margin-bottom:3px;">E-mail para testar</label>
+        <input id="ejs-test-email" type="email" placeholder="seu@email.com"
+          style="width:100%;height:34px;border:1px solid #d1cfc6;border-radius:6px;padding:0 10px;font-size:13px;">
+      </div>
       <div style="display:flex;gap:8px;">
         <button class="bp" id="ejs-save-btn" style="flex:1;">💾 Salvar configuração</button>
         <button class="bg" id="ejs-test-btn">🧪 Testar envio</button>
@@ -223,14 +230,23 @@ Condomínio Vitale Carioca</div>
     document.getElementById('ejs-cfg-status').innerHTML = '<span style="color:#555;">Enviando e-mail de teste...</span>';
     const ok = await carregarEmailJS();
     if (!ok) { document.getElementById('ejs-cfg-status').innerHTML = '<span style="color:#dc2626;">Sem conexão com EmailJS.</span>'; return; }
+    // Pede e-mail real para o teste
+    const emailTeste = document.getElementById('ejs-test-email').value.trim();
+    if (!emailTeste || !emailTeste.includes('@')) {
+      document.getElementById('ejs-cfg-status').innerHTML = '<span style="color:#dc2626;">Preencha o campo "E-mail para testar" acima.</span>';
+      return;
+    }
     try {
       emailjs.init(key);
       const res = await emailjs.send(svc, tpl, {
-        to_email: 'teste@vitale.carioca',
-        to_name: 'Teste', unidade: '101', andar: '1º Andar',
-        competencia: 'Teste', leitura: '—', consumo: '—',
-        valor_ind: '—', valor_rateio: '—', valor_total: '—',
-        pdf_base64: '', pdf_nome: 'teste.pdf'
+        to_email: emailTeste,
+        to_name: 'Teste Vitale Carioca',
+        name: 'Teste Vitale Carioca',
+        email: emailTeste,
+        unidade: '101', andar: '1º Andar',
+        competencia: 'Jun/2026', leitura: '125.00 m³', consumo: '5.00 m³',
+        valor_ind: 'R$ 36,21', valor_rateio: 'R$ 7,54', valor_total: 'R$ 43,75',
+        pdf_base64: '', pdf_nome: 'extrato_101_2026-06.pdf'
       });
       document.getElementById('ejs-cfg-status').innerHTML =
         res.status === 200
