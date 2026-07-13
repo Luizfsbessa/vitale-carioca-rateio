@@ -3,18 +3,25 @@
    via EmailJS (gratuito até 250/mês)
    ============================================ */
 
-const EMAILJS_CDN = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+const EMAILJS_CDNS = [
+  'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js',
+  'https://unpkg.com/@emailjs/browser@4/dist/email.min.js',
+];
 let _ejsLoaded = false;
 
 async function carregarEmailJS() {
   if (_ejsLoaded || typeof emailjs !== 'undefined') { _ejsLoaded = true; return true; }
-  return new Promise(resolve => {
-    const s = document.createElement('script');
-    s.src = EMAILJS_CDN;
-    s.onload = () => { _ejsLoaded = true; resolve(true); };
-    s.onerror = () => resolve(false);
-    document.head.appendChild(s);
-  });
+  for (const cdn of EMAILJS_CDNS) {
+    const ok = await new Promise(resolve => {
+      const s = document.createElement('script');
+      s.src = cdn;
+      s.onload = () => { _ejsLoaded = true; resolve(true); };
+      s.onerror = () => resolve(false);
+      document.head.appendChild(s);
+    });
+    if (ok) return true;
+  }
+  return false;
 }
 
 function getConfig() {
@@ -62,7 +69,7 @@ async function enviarEmailExtrato(cpSel, unidade, regComp, resident, onStatus) {
       email:        email,
       unidade:      unidade,
       andar:        `${andar}º Andar`,
-      competencia:  Fmt.formatarCompetencia(cpSel),
+      competencia:  Fmt.formatarCompetencia(cpSel).replace('/', '-'),
       leitura:      d.la > 0 ? `${d.la.toFixed(2)} m³` : '—',
       consumo:      `${d.c.toFixed(2)} m³`,
       valor_ind:    `R$ ${Fmt.formatarBRL(regComp.vpm3 * d.c)}`,
@@ -186,7 +193,7 @@ function abrirModalConfigEmailJS() {
         email:        dest,
         unidade:      '101',
         andar:        '1º Andar',
-        competencia:  'Jun/2026',
+        competencia:  'Jun-2026',
         leitura:      '125.00 m³',
         consumo:      '5.00 m³',
         valor_ind:    'R$ 36,21',
