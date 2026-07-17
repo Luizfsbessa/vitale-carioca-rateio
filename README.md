@@ -1,135 +1,163 @@
-# Rateio de Água — Vitale Carioca (PWA)
+# 💧 Rateio de Água — Condomínio Vitale Carioca
 
-Sistema de rateio de custos de água do Condomínio Vitale Carioca, com 96 unidades (12 andares × 8 unidades), leitura progressiva do hidrômetro, registro fotográfico para auditoria, anexo do boleto/fatura por competência, conferência de status, dashboard analítico e histórico completo.
+Sistema de rateio de custos de água desenvolvido para o Condomínio Vitale Carioca (96 unidades, 12 andares). Hospedado como Progressive Web App (PWA) no GitHub Pages — instalável no celular, funciona offline, sem servidor.
 
-## Estrutura do projeto
+🔗 **App ao vivo:** https://luizfsbessa.github.io/vitale-carioca-rateio/
+
+---
+
+## 🧮 Como funciona o rateio
+
+A Águas do Rio fornece uma leitura geral do consumo do prédio. Cada unidade tem seu próprio hidrômetro com leitura acumulada. O sistema calcula:
 
 ```
-vitale-carioca-pwa/
-├── index.html              → página principal (estrutura HTML)
-├── manifest.json            → configuração do PWA (ícone, nome, cores)
-├── service-worker.js        → cache offline
+Valor por m³ = Fatura total ÷ Consumo total (Águas do Rio)
+Consumo individual = Leitura atual − Leitura anterior
+Diferença = Consumo total − Soma das leituras individuais
+Rateio por unidade = Diferença ÷ 96
+Valor da unidade = (Consumo individual + Rateio) × Valor por m³
+```
+
+A diferença entre a leitura geral e a soma das individuais representa consumo de áreas comuns, perdas na rede e variações de medição — rateada igualmente entre todas as unidades.
+
+---
+
+## ✨ Funcionalidades
+
+### 📋 Lançamento
+- Grid por andar (12 andares × 8 unidades)
+- Leitura **acumulada** do hidrômetro por unidade
+- Validação: bloqueia leitura inferior à anterior
+- Leitura anterior buscada cronologicamente no histórico (lançamentos retroativos não corrompem dados futuros)
+- Botão 📷 para foto do hidrômetro (auditoria com data/hora)
+- Banner informativo sobre leitura acumulada vs. consumo
+
+### ✅ Conferência
+- Status de lançamento por unidade sem redigitar nada
+- Cards por andar com indicador % de progresso
+- Filtros: todas / lançadas / sem leitura
+- Valor segregado: individual + rateio da diferença + total
+
+### 📊 Dashboard
+- Gráficos em Canvas nativo (sem Chart.js)
+- Visão geral, por andar ou por unidade
+- Recortes mensais e anuais
+- Rankings top 20 maior/menor consumo
+
+### 📅 Histórico
+- Todas as competências salvas com detalhes por unidade
+- Indicador de fatura anexada
+- Edição retroativa e exportação CSV por mês
+
+### 👤 Condôminos
+- Cadastro de nome, WhatsApp e e-mail por unidade
+- Import/Export CSV (aceita vírgula ou ponto e vírgula)
+- Botão 📤 de envio por unidade
+
+### 📤 Envio do extrato
+- **PDF individual** gerado nativamente (Canvas → JPEG → PDF binário, sem bibliotecas)
+- Identidade visual completa da marca Vitale Carioca
+- **WhatsApp**: PDF baixa + abre WhatsApp com mensagem pré-formatada
+- **E-mail automático** via EmailJS com layout HTML (gratuito até 250/mês)
+
+### 📎 Fatura / Boleto
+- Anexo do boleto da Águas do Rio por competência (PDF ou imagem)
+- Aparece como indicador verde no Histórico
+
+### 💾 Backup
+- Export/Import JSON completo (leituras + fotos + faturas + condôminos)
+- Fotos comprimidas automaticamente (~80KB) antes de salvar
+
+---
+
+## 🗂️ Estrutura do projeto
+
+```
+vitale-carioca-rateio/
+├── index.html              → HTML principal
+├── manifest.json           → Configuração PWA
+├── service-worker.js       → Cache offline (v4)
 ├── css/
-│   ├── base.css                → variáveis de design, reset
-│   ├── header.css               → logo e painel de competência
-│   ├── tabs.css                  → abas e botões
-│   ├── floor-cards.css         → cards de andar (Lançamento + Conferência)
-│   ├── tables.css                → tabelas, histórico, badges
-│   ├── dashboard.css           → gráficos e rankings
-│   ├── photos.css                → captura/galeria de fotos do hidrômetro
-│   └── invoice.css               → anexo de boleto/fatura
+│   ├── base.css            → Variáveis de design, reset
+│   ├── header.css          → Logo e painel de competência
+│   ├── tabs.css            → Abas e botões
+│   ├── floor-cards.css     → Cards de andar
+│   ├── tables.css          → Tabelas, histórico, badges
+│   ├── dashboard.css       → Gráficos e rankings
+│   ├── photos.css          → Captura/galeria de fotos
+│   ├── invoice.css         → Anexo de fatura
+│   └── condominios.css     → Aba de condôminos e modal de envio
 ├── js/
-│   ├── db.js                     → persistência (IndexedDB) — leituras + fotos + faturas
-│   ├── photo-utils.js           → compressão de imagens / leitura de arquivos
-│   ├── rateio-logic.js          → regras de cálculo do rateio (puro, sem DOM)
-│   ├── formatters.js            → formatação de datas/moeda
-│   ├── charts.js                  → gráficos em canvas (sem dependências externas)
-│   ├── photos-ui.js              → modal de captura/visualização de foto
-│   ├── invoice-ui.js             → modal de anexo/visualização de fatura
-│   ├── tab-lancamento.js        → aba Lançamento
-│   ├── tab-conferencia.js       → aba Conferência
-│   ├── tab-dashboard.js         → aba Dashboard
-│   ├── tab-historico.js         → aba Histórico
-│   ├── export.js                  → exportação CSV e backup JSON
-│   └── app.js                     → orquestrador principal (liga tudo)
+│   ├── db.js               → IndexedDB (competências + fotos + faturas + condôminos)
+│   ├── photo-utils.js      → Compressão de imagens
+│   ├── rateio-logic.js     → Regras de cálculo (puro, sem DOM)
+│   ├── formatters.js       → Formatação de datas e moeda
+│   ├── charts.js           → Gráficos Canvas nativos
+│   ├── photos-ui.js        → Modal de foto do hidrômetro
+│   ├── invoice-ui.js       → Modal de fatura/boleto
+│   ├── tab-lancamento.js   → Aba Lançamento
+│   ├── tab-conferencia.js  → Aba Conferência
+│   ├── tab-dashboard.js    → Aba Dashboard
+│   ├── tab-historico.js    → Aba Histórico
+│   ├── tab-condominios.js  → Aba Condôminos
+│   ├── pdf-generator.js    → Geração de PDF nativo
+│   ├── share-modal.js      → Modal de envio (WhatsApp + E-mail)
+│   ├── emailjs-sender.js   → Integração EmailJS
+│   ├── export.js           → CSV e backup JSON
+│   └── app.js              → Orquestrador principal
 └── icons/
     ├── icon-192.png
     └── icon-512.png
 ```
 
-## Por que essa estrutura?
+---
 
-Cada arquivo tem uma única responsabilidade. Se no futuro for preciso mudar a
-fórmula do rateio, só se edita `rateio-logic.js`. Se for preciso mudar a cor
-do cabeçalho dos cards, só se edita `floor-cards.css`. Isso evita o efeito
-"bola de neve" de patches acumulados que tínhamos na versão anterior em
-arquivo único.
+## 🚀 Como usar
 
-## Funcionalidades principais
+### Fluxo mensal
+1. Selecione a **competência** (mês/ano) no topo
+2. Informe o **consumo total (m³)** e **valor da fatura** da Águas do Rio
+3. Na aba **Lançamento**, insira a leitura acumulada do hidrômetro de cada unidade
+4. Use a aba **Conferência** para verificar pendências sem redigitar nada
+5. Clique em **Fechar competência e salvar**
+6. Na aba **Condôminos**, clique em 📤 para enviar o extrato por WhatsApp ou e-mail
 
-- **Leitura progressiva**: a leitura anterior de cada unidade é sempre buscada
-  cronologicamente na competência salva mais recente — sem depender de um
-  cache solto que pudesse ficar desatualizado em lançamentos retroativos.
-- **Validação de leitura mínima**: bloqueia o lançamento de uma leitura menor
-  que a anterior (hidrômetro só acumula).
-- **Fotos do hidrômetro**: cada unidade tem um botão de câmera; a foto fica
-  vinculada à unidade + competência, com data/hora de registro (auditoria).
-  As imagens são comprimidas automaticamente (~50-100KB) antes de salvar.
-- **Anexo de boleto/fatura**: aceita PDF ou imagem do boleto da Águas do Rio,
-  vinculado à competência (um por mês). Aparece como indicador visual tanto
-  no painel de Lançamento quanto no Histórico, facilitando saber rapidamente
-  quais meses já têm o documento fiscal guardado.
-- **Conferência de status**: mostra quais unidades estão "Sem Leitura" sem
-  precisar redigitar nada — só lê os dados já salvos.
-- **Dashboard**: gráficos de consumo/valor/diferença, com visão geral, por
-  andar ou por unidade, em recortes mensais ou anuais.
-- **Backup completo**: exporta/importa um único arquivo `.json` com todas as
-  competências, fotos e faturas — útil para uso multi-dispositivo.
+### Instalação como app (PWA)
+- **Android (Chrome):** menu ⋮ → "Instalar app" ou banner automático
+- **iPhone (Safari):** botão compartilhar □↑ → "Adicionar à Tela de Início"
 
-## Como subir para o GitHub Pages (passo a passo)
+### Configuração do e-mail (EmailJS)
+1. Crie conta em [emailjs.com](https://www.emailjs.com) (gratuito, 250/mês)
+2. Conecte seu Gmail em **Email Services** → copie o **Service ID**
+3. Crie um template em **Email Templates** → copie o **Template ID**
+4. Em **Account → API Keys** → copie a **Public Key**
+5. No app → aba **Condôminos** → **⚙️ Config e-mail** → cole os valores e salve
 
-### 1. Crie um novo repositório no GitHub
-- Acesse [github.com/new](https://github.com/new)
-- Nome sugerido: `vitale-carioca-rateio`
-- Marque como **Public** (necessário para GitHub Pages gratuito)
-- Não inicialize com README (já temos um)
-- Clique em **Create repository**
+---
 
-### 2. Suba os arquivos
-Você pode fazer isso direto pela interface web do GitHub (mais simples) ou via linha de comando.
+## 💾 Backup dos dados
 
-**Opção A — pela interface web (mais fácil):**
-1. Na página do repositório recém-criado, clique em **uploading an existing file**
-2. Arraste a pasta `vitale-carioca-pwa` inteira (ou todos os arquivos dela) para a área de upload
-   - Importante: a estrutura de pastas (`css/`, `js/`, `icons/`) precisa ser preservada
-3. Escreva uma mensagem de commit, ex: "Versão inicial do PWA"
-4. Clique em **Commit changes**
+Os dados ficam no **IndexedDB do navegador** (local ao dispositivo). Use a aba **Backup** para exportar um `.json` com tudo e importar em outro dispositivo.
 
-**Opção B — via linha de comando (se tiver Git instalado):**
-```bash
-cd vitale-carioca-pwa
-git init
-git add .
-git commit -m "Versão inicial do PWA"
-git branch -M main
-git remote add origin https://github.com/SEU_USUARIO/vitale-carioca-rateio.git
-git push -u origin main
-```
+> Recomendação: exporte mensalmente após fechar cada competência.
 
-### 3. Ative o GitHub Pages
-1. No repositório, vá em **Settings** (aba no topo)
-2. No menu lateral esquerdo, clique em **Pages**
-3. Em **Source**, selecione **Deploy from a branch**
-4. Em **Branch**, selecione **main** e a pasta **/ (root)**
-5. Clique em **Save**
-6. Aguarde 1-2 minutos — o GitHub vai mostrar a URL pública, algo como:
-   `https://SEU_USUARIO.github.io/vitale-carioca-rateio/`
+---
 
-### 4. Acesse e instale como app
-1. Abra a URL acima no celular (Chrome no Android ou Safari no iPhone)
-2. **Android (Chrome):** vai aparecer um banner "Adicionar à tela inicial" — ou toque no menu (⋮) → **Instalar app**
-3. **iPhone (Safari):** toque no botão de compartilhar (□↑) → **Adicionar à Tela de Início**
-4. O app vai aparecer como um ícone normal, abre em tela cheia, funciona offline
+## 🛠️ Tecnologias
 
-## Atualizações futuras
+- **HTML5 / CSS3 / JavaScript ES2020** — sem frameworks
+- **IndexedDB** — persistência local robusta
+- **Canvas 2D API** — gráficos e geração de PDF
+- **Service Worker** — cache offline e instalação PWA
+- **EmailJS** — envio de e-mail sem servidor
+- **GitHub Pages** — hospedagem gratuita
 
-Sempre que precisar alterar algo:
-1. Edite o(s) arquivo(s) relevante(s) localmente
-2. Suba novamente para o GitHub (upload manual ou `git push`)
-3. O GitHub Pages atualiza automaticamente em 1-2 minutos
-4. **Importante:** como o app usa Service Worker para cache offline, pode ser necessário que o usuário force a atualização — feche e abra o app novamente, ou no navegador faça um "hard refresh" (Ctrl+Shift+R)
+---
 
-## Backup dos dados
+## 📄 Licença
 
-Os dados (leituras, valores, fotos do hidrômetro e faturas anexadas) ficam
-salvos no **IndexedDB do navegador**, local ao dispositivo. Use a aba
-**Backup** dentro do app para:
-- **Exportar**: gera um arquivo `.json` com tudo (inclusive fotos e faturas em base64)
-- **Importar**: restaura os dados em outro dispositivo/navegador
+MIT — livre para uso, modificação e distribuição.
 
-Recomendação: exporte o backup mensalmente, após fechar cada competência,
-e guarde em local seguro (Google Drive, e-mail, etc.) como segurança extra.
+---
 
-> Atenção: arquivos de fatura muito grandes (acima de 10MB) não são aceitos
-> no anexo — nesse caso, comprima o PDF antes de anexar ou recorte a página
-> relevante do boleto.
+*Powered by Luiz Bessa*
