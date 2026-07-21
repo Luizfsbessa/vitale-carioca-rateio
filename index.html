@@ -156,6 +156,7 @@
           <button class="bg" onclick="document.getElementById('cond-import-input').click()">⬆️ Importar CSV</button>
           <input type="file" id="cond-import-input" accept=".csv" style="display:none" onchange="onCondominiosImportCSV(event)">
           <button class="bg" onclick="EmailJSSender.abrirModalConfigEmailJS()" title="Configurar envio de e-mail">⚙️ Config e-mail</button>
+          <button class="bp" onclick="BulkSend.abrirModal()" title="Enviar extrato para todos os condôminos com e-mail cadastrado">📨 Enviar para todos</button>
         </div>
       </div>
       <div class="ai" style="margin-top:0;margin-bottom:0;">
@@ -229,6 +230,7 @@
 <script src="js/pdf-generator.js"></script>
 <script src="js/share-modal.js"></script>
 <script src="js/emailjs-sender.js"></script>
+<script src="js/bulk-send.js"></script>
 <script src="js/tab-lancamento.js"></script>
 <script src="js/tab-conferencia.js"></script>
 <script src="js/tab-dashboard.js"></script>
